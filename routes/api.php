@@ -11,12 +11,16 @@ Route::group([
     Route::post('logout', 'AuthController@logout');
     Route::post('refresh', 'AuthController@refresh');
     Route::post('me', 'AuthController@me');
+
     Route::get('profile','ProfileController@getProfile');
     Route::post('profile','ProfileController@setProfile');
-    Route::post('postTweet','TweetController@postTweet');
-    Route::get('getTweets','TweetController@getTweets');
     Route::get('settingsData','ProfileController@getSettingsData');
     Route::post('updateProfile','ProfileController@updateProfile');
+
+    Route::post('postTweet','TweetController@postTweet');
+    Route::get('getTweets','TweetController@getTweets');
+
     Route::get('user/{username}','UserController@getUser');
+    Route::post('addFriend','UserController@addFriend');
 
 });

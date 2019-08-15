@@ -14,6 +14,7 @@ class TweetController extends Controller
         $tweet = new Tweet();
         $tweet->user_id = $user->id;
         $tweet->text = $request->text;
+
         $user->tweet()->save($tweet);
 
         return $tweet;
