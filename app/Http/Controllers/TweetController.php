@@ -43,7 +43,7 @@ class TweetController extends Controller
     {
         $user = auth()->user();
 
-        $tweet = Tweet::Where('tweet_id',$request->tweet_id)->first();
+        $tweet = Tweet::Where('id',$request->tweet_id)->first();
 
         $comment = new Comment();
         $comment->user_id = $user->id;

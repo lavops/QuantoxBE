@@ -71,6 +71,14 @@ class UserController extends Controller
     }
     //
 
+    public function getUserWithID($id) {
+        $yourInfo = auth()->user();
+
+        $user = User::Where('id',$id)->first();
+
+        return $user;
+    }
+
     protected function sendUser($yourInfo,$userInfo)
     {
         return response()->json([
