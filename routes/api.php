@@ -19,9 +19,13 @@ Route::group([
 
     Route::post('postTweet','TweetController@postTweet');
     Route::get('getTweets','TweetController@getTweets');
+    Route::get('tweet/{id}', 'TweetController@getComments');
+    Route::get('postComment', 'TweetController@postComment');
 
     Route::get('user/{username}','UserController@getUser');
     Route::post('addFriend','UserController@addFriend');
     Route::post('deleteFriend','UserController@deleteFriend');
+
+
 
 });
