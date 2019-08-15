@@ -22,5 +22,6 @@ Route::group([
 
     Route::get('user/{username}','UserController@getUser');
     Route::post('addFriend','UserController@addFriend');
+    Route::post('deleteFriend','UserController@deleteFriend');
 
 });

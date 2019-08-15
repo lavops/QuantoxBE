@@ -34,6 +34,20 @@ class UserController extends Controller
         return $this->getUser($user2->username);
     }
 
+    public function deleteFriend(Request $request)
+    {
+        $user1 = auth()->user();
+        $user2 = $user2 = User::Where('id',$request->id)->first();
+
+        $friend1 = Friend::Where('user_id',$user1->id)->Where('friend_id',$user2->id)->first();
+        $friend2 = Friend::Where('user_id',$user2->id)->Where('friend_id',$user1->id)->first();
+
+        $user1->friend()->delete($friend1);
+        $user2->friend()->delete($friend2);
+
+        return $this->getUser($user2->username);
+    }
+
     // get single user ( ovo se koristi za gledanje tudjih profila )
     public function getUser($username) {
         $yourInfo = auth()->user();
