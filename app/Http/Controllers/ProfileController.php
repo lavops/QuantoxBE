@@ -26,7 +26,8 @@ class ProfileController extends Controller
 
         return response()->json([
             'name' => $user->name,
-            'bio' => $user->bio
+            'bio' => $user->bio,
+            'isPrivate' => $user->isPrivate
         ]);
     }
 
@@ -41,6 +42,8 @@ class ProfileController extends Controller
 
         if ($request->password != null && $request->password_confirmation && $request->password == $request->password_confirmation)
             $user->password = bcrypt($request->password);
+
+        $user->isPrivate = $request->isPrivate;
 
         $user->save();
 
