@@ -17,5 +17,6 @@ Route::group([
     Route::get('getTweets','TweetController@getTweets');
     Route::get('settingsData','ProfileController@getSettingsData');
     Route::post('updateProfile','ProfileController@updateProfile');
+    Route::get('user/{username}','UserController@getUser');
 
 });
