@@ -20,8 +20,16 @@ class TweetController extends Controller
         $tweet->text = $request->text;
 
         $user->tweet()->save($tweet);
+        $tweets = Tweet::where('user_id',$user->id)->orderBy('updated_at','desc')->get();
+        return $tweets;
+    }
 
-        return $tweet;
+    public function deleteTweet(Request $request) {
+        $user = auth()->user();
+        $tweet = Tweet::where('id',$request->id)->first();
+        $user->tweet()->delete($tweet);
+        $tweets = Tweet::where('user_id',$user->id)->orderBy('updated_at','desc')->get();
+        return $tweets;
     }
 
     public function getTweets()
@@ -30,42 +38,13 @@ class TweetController extends Controller
         $tweets = Tweet::join('users','tweets.user_id','=','users.id')->select(
             'tweets.*',
             'users.username',
-            'users.name')->get();
+            'users.name')->orderBy('updated_at','desc')->get();
         return $tweets;
-    }
-
-    public function getComments($id)
-    {
-        $user = auth()->user();
-
-        $comments = Comment::join('users','comments.user_id','=','users.id')->select(
-            'comments.*',
-            'users.username',
-            'users.name'
-        )->Where('tweet_id', $id)->get();
-
-        return $comments;
-    }
-
-    public function postComment(CommentRequest $request)
-    {
-        $user = auth()->user();
-
-        $tweet = Tweet::Where('id',$request->tweet_id)->first();
-
-        $comment = new Comment();
-        $comment->user_id = $user->id;
-        $comment->tweet_id = $request->tweet_id;
-        $comment->text = $request->text;
-
-        $tweet->comment()->save($comment);
-
-        return $comment;
     }
 
     public function likeTweet(Request $request) {
         $user = auth()->user();
-        //dd($request);
+
         $tweet = Tweet::Where('id',$request->id)->first();
 
         $like = new Like();
@@ -99,7 +78,7 @@ class TweetController extends Controller
             'users.username',
             'users.name'
         )->Where('tweet_id', $id)->get();
-        //dd($likes->where('username',$user.username)->first());
+
         if($likes->where('username',$user->username)->first() != null)
             $isLiked = true;
         return response()->json([

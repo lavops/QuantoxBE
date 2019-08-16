@@ -9,12 +9,6 @@ use Illuminate\Http\Request;
 
 class UserController extends Controller
 {
-    // delete user
-
-    // create vec postoji u AuthController-u
-
-    // addFriend
-
     public function addFriend(Request $request)
     {
         $user1 = auth()->user();
@@ -24,12 +18,12 @@ class UserController extends Controller
         $friend1->user_id = $user1->id;
         $friend1->friend_id = $user2->id;
 
-        $friend2 = new Friend();
-        $friend2->user_id = $user2->id;
-        $friend2->friend_id = $user1->id;
+        if($user2->isPrivate)
+            $friend1->isRequested = true;
+        else
+            $friend1->isRequested = false;
 
         $user1->friend()->save($friend1);
-        $user2->friend()->save($friend2);
 
         return $this->getUser($user2->username);
     }
@@ -40,36 +34,51 @@ class UserController extends Controller
         $user2 = $user2 = User::Where('id',$request->id)->first();
 
         $friend1 = Friend::Where('user_id',$user1->id)->Where('friend_id',$user2->id)->first();
-        $friend2 = Friend::Where('user_id',$user2->id)->Where('friend_id',$user1->id)->first();
 
         $user1->friend()->delete($friend1);
-        $user2->friend()->delete($friend2);
 
         return $this->getUser($user2->username);
     }
 
-    // get single user ( ovo se koristi za gledanje tudjih profila )
     public function getUser($username) {
-        $yourInfo = auth()->user();
-
-        $userInfo = User::Where('username',$username)->first();
-
-        $friend = Friend::Where('user_id',$yourInfo->id)->Where('friend_id',$userInfo->id)->first();
+        $me = auth()->user();
+        $user = User::Where('username',$username)->first();
+        $friend = Friend::Where('user_id',$me->id)->Where('friend_id',$user->id)->Where('isRequested',false)->first();
         $friendsBool = null;
-        if($userInfo->isPrivate == false || $friend != null)
+        $isRequested = false;
+
+        if($user->isPrivate == false || $friend != null)
         {
             if($friend != null)
                 $friendsBool = true;
             else
                 $friendsBool = false;
 
-            $tweets = Tweet::Where('user_id',$userInfo->id)->orderBy('updated_at','desc')->get();
-            return $this->sendFullUser($yourInfo,$userInfo,$tweets,$friendsBool);
+            $tweets = Tweet::Where('user_id',$user->id)->orderBy('updated_at','desc')->get();
+            // Liked tweets
+            $following = Friend::Where('user_id',$user->id)->Where('isRequested',false)->get();
+            $followers = Friend::Where('friend_id',$user->id)->Where('isRequested',false)->get();
+            return $this->sendUser($me,$user,$tweets,$following,$followers,$friendsBool,$isRequested);
         }
+        else
+        {
+            if(Friend::Where('user_id',$me->id)->Where('friend_id',$user->id)->Where('isRequested',true)->first() != null) {
+                $isRequested = true;
+                $friendsBool = false;
+            }
+            else {
+                $isRequested = false;
+                $friendsBool = false;
+            }
 
-        return $this->sendUser($yourInfo,$userInfo );
+            $tweets = null;
+            // Liked Tweets
+            $following = Friend::Where('user_id',$user->id)->Where('isRequested',false)->get();
+            $followers = Friend::Where('friend_id',$user->id)->Where('isRequested',false)->get();
+
+            return $this->sendUser($me,$user,$tweets,$following,$followers,$friendsBool,$isRequested);
+        }
     }
-    //
 
     public function getUserWithID($id) {
         $yourInfo = auth()->user();
@@ -79,21 +88,16 @@ class UserController extends Controller
         return $user;
     }
 
-    protected function sendUser($yourInfo,$userInfo)
+    protected function sendUser($me,$user,$tweets,$following,$followers,$friendsBool,$isRequested)
     {
         return response()->json([
-            'you' => $yourInfo,
-            'user' => $userInfo
-        ]);
-    }
-
-    protected function sendFullUser($yourInfo,$userInfo,$tweets,$friendsBool)
-    {
-        return response()->json([
-            'you' => $yourInfo,
-            'user' => $userInfo,
+            'me' => $me,
+            'user' => $user,
             'tweets' => $tweets,
-            'friendsBool' => $friendsBool
+            'following' => $following,
+            'followers' => $followers,
+            'friendsBool' => $friendsBool,
+            'isRequested' => $isRequested
         ]);
     }
 }

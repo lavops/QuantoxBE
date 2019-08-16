@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Friend;
 use Illuminate\Http\Request;
 use App\Tweet;
 
@@ -10,14 +11,19 @@ class ProfileController extends Controller
     public function getProfile() {
         $user = auth()->user();
         $tweets = Tweet::Where('user_id',$user->id)->orderBy('updated_at','desc')->get();
-        return $this->sendProfileData($user,$tweets);
+        // Liked tweets
+        $following = Friend::Where('user_id',$user->id)->Where('isRequested',false)->get();
+        $followers = Friend::Where('friend_id',$user->id)->Where('isRequested',false)->get();
+        return $this->sendProfile($user,$tweets,$following,$followers);
     }
 
-    protected function sendProfileData($user,$tweets)
+    protected function sendProfile($user,$tweets,$following,$followers)
     {
         return response()->json([
             'user' => $user,
-            'tweets' => $tweets
+            'tweets' => $tweets,
+            'following' => $following,
+            'followers' => $followers
         ]);
     }
 

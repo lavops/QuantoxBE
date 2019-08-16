@@ -19,11 +19,13 @@ Route::group([
 
     Route::post('postTweet','TweetController@postTweet');
     Route::get('getTweets','TweetController@getTweets');
-    Route::get('tweet/{id}', 'TweetController@getComments');
-    Route::post('postComment', 'TweetController@postComment');
     route::post('likeTweet','TweetController@likeTweet');
     route::post('unlikeTweet','TweetController@unlikeTweet');
     route::get('getLikes/{id}','TweetController@getLikes');
+    route::post('deleteTweet','TweetController@deleteTweet');
+
+    Route::get('tweet/{id}', 'CommentController@getComments');
+    Route::post('postComment', 'CommentController@postComment');
 
     Route::get('user/{username}','UserController@getUser');
     Route::post('addFriend','UserController@addFriend');
