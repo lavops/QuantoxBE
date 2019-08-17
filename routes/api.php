@@ -33,5 +33,11 @@ Route::group([
     Route::post('deleteFriend','UserController@deleteFriend');
     Route::get('userID/{id}','UserController@getUserWithID');
 
+    Route::get('getFollowNotify','NotifyController@getFollow');
+    Route::get('getLikeNotify','NotifyController@getLike');
+    Route::post('dismissLike','NotifyController@dismissLike');
+    Route::post('dismissFollow','NotifyController@dismissFollow');
+    Route::post('acceptFollow','NotifyController@acceptFollow');
+    Route::post('declineFollow','NotifyController@declineFollow');
 
 });

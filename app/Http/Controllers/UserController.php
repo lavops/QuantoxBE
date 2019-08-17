@@ -23,6 +23,8 @@ class UserController extends Controller
         else
             $friend1->isRequested = false;
 
+        $friend1->notify = true;
+
         $user1->friend()->save($friend1);
 
         return $this->getUser($user2->username);

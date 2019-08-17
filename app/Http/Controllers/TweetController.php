@@ -71,6 +71,7 @@ class TweetController extends Controller
         $like = new Like();
         $like->tweet_id = $request->tweet_id;
         $like->user_id = $user->id;
+        $like->notify = true;
 
         $tweet->like()->save($like);
 

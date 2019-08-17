@@ -16,7 +16,8 @@ class CommentController extends Controller
         $comments = Comment::join('users','comments.user_id','=','users.id')->select(
             'comments.*',
             'users.username',
-            'users.name'
+            'users.name',
+            'users.imgURL'
         )->Where('tweet_id', $id)->get();
 
         return $comments;
@@ -32,6 +33,7 @@ class CommentController extends Controller
         $comment->user_id = $user->id;
         $comment->tweet_id = $request->tweet_id;
         $comment->text = $request->text;
+        $comment->notify = true;
 
         $tweet->comment()->save($comment);
 

@@ -18,6 +18,7 @@ class CreateFriendsTable extends Migration
             $table->bigInteger('user_id')->unsigned();
             $table->bigInteger('friend_id')->unsigned();
             $table->boolean('isRequested')->nullable();
+            $table->boolean('notify')->nullable();
             $table->timestamps();
         });
         Schema::table('friends',function(Blueprint $table)

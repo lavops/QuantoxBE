@@ -18,6 +18,7 @@ class CreateCommentsTable extends Migration
             $table->bigInteger('tweet_id')->unsigned();
             $table->bigInteger('user_id')->unsigned();
             $table->string('text',150);
+            $table->boolean('notify')->nullable();
             $table->timestamps();
         });
         Schema::table('comments',function(Blueprint $table)
