@@ -20,16 +20,35 @@ class TweetController extends Controller
         $tweet->text = $request->text;
 
         $user->tweet()->save($tweet);
-        $tweets = Tweet::where('user_id',$user->id)->orderBy('updated_at','desc')->get();
-        return $tweets;
+        if($request->url == 'profile') {
+            $tweets = Tweet::where('user_id', $user->id)->join('users','tweets.user_id','=','users.id')->select(
+                'tweets.*',
+                'users.username',
+                'users.name',
+                'users.imgURL'
+            )->orderBy('tweets.updated_at', 'desc')->get();
+            return $tweets;
+        }
+        else
+            return $this->getTweets();
     }
 
     public function deleteTweet(Request $request) {
         $user = auth()->user();
         $tweet = Tweet::where('id',$request->id)->first();
-        $user->tweet()->delete($tweet);
-        $tweets = Tweet::where('user_id',$user->id)->orderBy('updated_at','desc')->get();
-        return $tweets;
+        $tweet->delete();
+
+        if($request->url == 'profile') {
+            $tweets = Tweet::where('user_id', $user->id)->join('users','tweets.user_id','=','users.id')->select(
+                'tweets.*',
+                'users.username',
+                'users.name',
+                'users.imgURL'
+            )->orderBy('tweets.updated_at', 'desc')->get();
+            return $tweets;
+        }
+        else
+            return $this->getTweets();
     }
 
     public function getTweets()
@@ -38,7 +57,9 @@ class TweetController extends Controller
         $tweets = Tweet::join('users','tweets.user_id','=','users.id')->select(
             'tweets.*',
             'users.username',
-            'users.name')->orderBy('updated_at','desc')->get();
+            'users.name',
+            'users.imgURL'
+            )->orderBy('updated_at','desc')->get();
         return $tweets;
     }
 

@@ -54,7 +54,12 @@ class UserController extends Controller
             else
                 $friendsBool = false;
 
-            $tweets = Tweet::Where('user_id',$user->id)->orderBy('updated_at','desc')->get();
+            $tweets = Tweet::where('user_id', $user->id)->join('users','tweets.user_id','=','users.id')->select(
+                'tweets.*',
+                'users.username',
+                'users.name',
+                'users.imgURL'
+            )->orderBy('tweets.updated_at', 'desc')->get();
             // Liked tweets
             $following = Friend::Where('user_id',$user->id)->Where('isRequested',false)->get();
             $followers = Friend::Where('friend_id',$user->id)->Where('isRequested',false)->get();

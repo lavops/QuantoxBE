@@ -37,4 +37,13 @@ class CommentController extends Controller
 
         return $this->getComments($tweet->id);
     }
+
+    public function deleteComment(Request $request) {
+        $user = auth()->user();
+        $tweet = Tweet::Where('id',$request->tweet_id)->first();
+        $comment = Comment::Where('id',$request->id)->first();
+        $comment->delete();
+
+        return $this->getComments($request->tweet_id);
+    }
 }

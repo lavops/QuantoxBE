@@ -26,6 +26,7 @@ Route::group([
 
     Route::get('tweet/{id}', 'CommentController@getComments');
     Route::post('postComment', 'CommentController@postComment');
+    Route::post('deleteComment','CommentController@deleteComment');
 
     Route::get('user/{username}','UserController@getUser');
     Route::post('addFriend','UserController@addFriend');
