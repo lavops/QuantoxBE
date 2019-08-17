@@ -22,7 +22,7 @@ class CreateUsersTable extends Migration
             $table->string('password');
             $table->string('bio')->nullable();
             $table->boolean('isPrivate')->default(false);
-            $table->string('imgURL')->default('https://icon-library.net/images/default-profile-icon/default-profile-icon-24.jpg');
+            $table->text('imgURL')->default('https://icon-library.net/images/default-profile-icon/default-profile-icon-24.jpg');
             $table->rememberToken();
             $table->timestamps();
         });
