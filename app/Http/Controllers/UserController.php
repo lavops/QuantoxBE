@@ -95,6 +95,18 @@ class UserController extends Controller
         return $user;
     }
 
+    public function search($text) {
+        $user = auth()->user();
+
+        $data = User::Where('name','LIKE','%'.$text.'%')->orWhere('username','LIKE','%'.$text.'%')->get();
+
+        return $data;
+    }
+
+    public function searchNothing() {
+        return [];
+    }
+
     protected function sendUser($me,$user,$tweets,$following,$followers,$friendsBool,$isRequested)
     {
         return response()->json([

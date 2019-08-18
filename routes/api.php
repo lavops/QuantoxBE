@@ -32,6 +32,8 @@ Route::group([
     Route::post('addFriend','UserController@addFriend');
     Route::post('deleteFriend','UserController@deleteFriend');
     Route::get('userID/{id}','UserController@getUserWithID');
+    Route::get('search/{text}','UserController@search');
+    Route::get('search/{text?}','UserController@searchNothing');
 
     Route::get('getFollowNotify','NotifyController@getFollow');
     Route::get('getLikeNotify','NotifyController@getLike');

@@ -115,7 +115,7 @@
   <component name="PropertiesComponent">
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../FE" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="nodejs_package_manager_path" value="yarn" />
   </component>
   <component name="RunDashboard">
@@ -154,7 +154,11 @@
       <workItem from="1565941004541" duration="8693000" />
       <workItem from="1565968393081" duration="16117000" />
       <workItem from="1566030958668" duration="9867000" />
-      <workItem from="1566064972501" duration="9274000" />
+      <workItem from="1566064972501" duration="10255000" />
+      <workItem from="1566116344326" duration="566000" />
+      <workItem from="1566120378039" duration="530000" />
+      <workItem from="1566125328701" duration="599000" />
+      <workItem from="1566151981253" duration="3459000" />
     </task>
     <servers />
   </component>

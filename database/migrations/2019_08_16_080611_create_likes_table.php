@@ -23,8 +23,8 @@ class CreateLikesTable extends Migration
 
         Schema::table('likes',function(Blueprint $table)
         {
-            $table->foreign('user_id')->references('id')->on('users');
-            $table->foreign('tweet_id')->references('id')->on('tweets');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            $table->foreign('tweet_id')->references('id')->on('tweets')->onDelete('cascade');
         });
         Schema::enableForeignKeyConstraints();
     }
