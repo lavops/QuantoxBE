@@ -54,12 +54,17 @@ class TweetController extends Controller
     public function getTweets()
     {
         $user = auth()->user();
-        $tweets = Tweet::join('users','tweets.user_id','=','users.id')->select(
+
+        $tweets = Tweet::join('users','tweets.user_id','=','users.id')->
+            join('friends','users.id','=','friends.friend_id')->
+            Where('friends.user_id',$user->id)->
+            orWhere('tweets.user_id',$user->id)->select(
             'tweets.*',
             'users.username',
             'users.name',
             'users.imgURL'
-            )->orderBy('updated_at','desc')->get();
+            )->orderBy('updated_at','desc')->distinct('tweets.id')->get();
+
         return $tweets;
     }
 

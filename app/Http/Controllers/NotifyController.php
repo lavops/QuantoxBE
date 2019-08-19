@@ -23,7 +23,14 @@ class NotifyController extends Controller
     public function getLike() {
         $user = auth()->user();
 
-        $notify = null;
+        $notify = Like::join('tweets','likes.tweet_id','=','tweets.id')->
+        join('users','likes.user_id','=','users.id')->
+        where('likes.notify',true)->where('tweets.user_id',$user->id)->
+        where('likes.user_id','!=',$user->id)->select(
+            'likes.*',
+            'users.username',
+            'users.name'
+        )->get();
 
         return $notify;
     }
