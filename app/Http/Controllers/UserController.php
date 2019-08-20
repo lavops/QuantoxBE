@@ -63,8 +63,8 @@ class UserController extends Controller
                 'users.imgURL'
             )->orderBy('tweets.updated_at', 'desc')->get();
             // Liked tweets
-            $following = Friend::Where('user_id',$user->id)->Where('isRequested',false)->get();
-            $followers = Friend::Where('friend_id',$user->id)->Where('isRequested',false)->get();
+            $following = Friend::Where('user_id',$user->id)->join('users','friends.friend_id','=','users.id')->Where('isRequested',false)->get();
+            $followers = Friend::Where('friend_id',$user->id)->join('users','friends.user_id','=','users.id')->Where('isRequested',false)->get();
             return $this->sendUser($me,$user,$tweets,$following,$followers,$friendsBool,$isRequested);
         }
         else

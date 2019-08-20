@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Comment;
+use App\Events\LikeEvent;
 use App\Http\Requests\CommentRequest;
 use App\Http\Requests\TweetRequest;
 use App\Like;
@@ -15,6 +16,7 @@ class TweetController extends Controller
     public function postTweet(TweetRequest $request)
     {
         $user = auth()->user();
+
         $tweet = new Tweet();
         $tweet->user_id = $user->id;
         $tweet->text = $request->text;
@@ -56,9 +58,10 @@ class TweetController extends Controller
         $user = auth()->user();
 
         $tweets = Tweet::join('users','tweets.user_id','=','users.id')->
-            join('friends','users.id','=','friends.friend_id')->
+            leftJoin('friends','users.id','=','friends.friend_id')->
             Where('friends.user_id',$user->id)->
-            orWhere('tweets.user_id',$user->id)->select(
+            Where('friends.isRequested',false)->
+            orWhere('users.id',$user->id)->select(
             'tweets.*',
             'users.username',
             'users.name',
@@ -69,6 +72,7 @@ class TweetController extends Controller
     }
 
     public function likeTweet(Request $request) {
+
         $user = auth()->user();
 
         $tweet = Tweet::Where('id',$request->id)->first();

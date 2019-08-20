@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Friend;
+use App\Like;
 use Illuminate\Http\Request;
 use App\Tweet;
 
@@ -16,19 +17,26 @@ class ProfileController extends Controller
             'users.name',
             'users.imgURL'
         )->orderBy('tweets.updated_at', 'desc')->get();
-        // Liked tweets
-        $following = Friend::Where('user_id',$user->id)->Where('isRequested',false)->get();
-        $followers = Friend::Where('friend_id',$user->id)->Where('isRequested',false)->get();
-        return $this->sendProfile($user,$tweets,$following,$followers);
+        $liked = Like::join('tweets','likes.tweet_id','=','tweets.id')->Where('likes.user_id',$user->id)->
+        join('users','tweets.user_id','=','users.id')->select(
+            'tweets.*',
+            'users.username',
+            'users.name',
+            'users.imgURL'
+        )->get();
+        $following = Friend::Where('user_id',$user->id)->join('users','friends.friend_id','=','users.id')->Where('isRequested',false)->get();
+        $followers = Friend::Where('friend_id',$user->id)->join('users','friends.user_id','=','users.id')->Where('isRequested',false)->get();
+        return $this->sendProfile($user,$tweets,$following,$followers,$liked);
     }
 
-    protected function sendProfile($user,$tweets,$following,$followers)
+    protected function sendProfile($user,$tweets,$following,$followers,$liked)
     {
         return response()->json([
             'user' => $user,
             'tweets' => $tweets,
             'following' => $following,
-            'followers' => $followers
+            'followers' => $followers,
+            'liked' => $liked
         ]);
     }
 

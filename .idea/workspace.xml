@@ -108,6 +108,8 @@
       <path value="$PROJECT_DIR$/vendor/tymon/jwt-auth" />
       <path value="$PROJECT_DIR$/vendor/symfony/polyfill-php56" />
       <path value="$PROJECT_DIR$/vendor/symfony/polyfill-util" />
+      <path value="$PROJECT_DIR$/vendor/pusher/pusher-php-server" />
+      <path value="$PROJECT_DIR$/vendor/paragonie/sodium_compat" />
     </include_path>
   </component>
   <component name="ProjectId" id="1PQLX477huFeMpWjulhoXAQBA2f" />
@@ -159,7 +161,11 @@
       <workItem from="1566120378039" duration="530000" />
       <workItem from="1566125328701" duration="599000" />
       <workItem from="1566151981253" duration="8215000" />
-      <workItem from="1566199818448" duration="2576000" />
+      <workItem from="1566199818448" duration="2992000" />
+      <workItem from="1566207128911" duration="5238000" />
+      <workItem from="1566242429454" duration="5103000" />
+      <workItem from="1566248470485" duration="20000" />
+      <workItem from="1566285997432" duration="5147000" />
     </task>
     <servers />
   </component>

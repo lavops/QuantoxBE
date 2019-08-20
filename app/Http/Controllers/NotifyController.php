@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\LikeEvent;
 use App\Friend;
 use App\Like;
 use Illuminate\Http\Request;
@@ -73,5 +74,9 @@ class NotifyController extends Controller
         $like->update();
 
         return $this->getLike();
+    }
+
+    public function not() {
+        event(new LikeEvent('Uspeh uspeh'));
     }
 }

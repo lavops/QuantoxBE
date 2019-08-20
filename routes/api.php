@@ -42,4 +42,6 @@ Route::group([
     Route::post('acceptFollow','NotifyController@acceptFollow');
     Route::post('declineFollow','NotifyController@declineFollow');
 
+    Route::get('not','NotifyController@not');
+
 });
