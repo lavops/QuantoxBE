@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Block;
 use App\Friend;
 use App\Tweet;
 use App\User;
@@ -31,23 +32,31 @@ class UserController extends Controller
     }
 
     public function deleteFriend(Request $request)
-    {
-        $user1 = auth()->user();
-        $user2 = $user2 = User::Where('id',$request->id)->first();
+{
+    $user1 = auth()->user();
+    $user2 = User::Where('id',$request->id)->first();
 
-        $friend1 = Friend::Where('user_id',$user1->id)->Where('friend_id',$user2->id)->first();
+    $friend1 = Friend::Where('user_id',$user1->id)->Where('friend_id',$user2->id)->first();
 
-        $user1->friend()->delete($friend1);
+    $user1->friend()->delete($friend1);
 
-        return $this->getUser($user2->username);
-    }
+    return $this->getUser($user2->username);
+}
 
     public function getUser($username) {
         $me = auth()->user();
         $user = User::Where('username',$username)->first();
         $friend = Friend::Where('user_id',$me->id)->Where('friend_id',$user->id)->Where('isRequested',false)->first();
+
+        $youBlockedMe = false;
+        $meBlockedYou = false;
         $friendsBool = null;
         $isRequested = false;
+
+        if(Block::Where('user_id',$me->id)->Where('friend_id',$user->id)->first() != null)
+            $meBlockedYou = true;
+        if(Block::Where('friend_id',$me->id)->Where('user_id',$user->id)->first())
+            $youBlockedMe = true;
 
         if($user->isPrivate == false || $friend != null)
         {
@@ -65,7 +74,7 @@ class UserController extends Controller
             // Liked tweets
             $following = Friend::Where('user_id',$user->id)->join('users','friends.friend_id','=','users.id')->Where('isRequested',false)->get();
             $followers = Friend::Where('friend_id',$user->id)->join('users','friends.user_id','=','users.id')->Where('isRequested',false)->get();
-            return $this->sendUser($me,$user,$tweets,$following,$followers,$friendsBool,$isRequested);
+            return $this->sendUser($me,$user,$tweets,$following,$followers,$friendsBool,$isRequested,$meBlockedYou,$youBlockedMe);
         }
         else
         {
@@ -83,7 +92,7 @@ class UserController extends Controller
             $following = Friend::Where('user_id',$user->id)->Where('isRequested',false)->get();
             $followers = Friend::Where('friend_id',$user->id)->Where('isRequested',false)->get();
 
-            return $this->sendUser($me,$user,$tweets,$following,$followers,$friendsBool,$isRequested);
+            return $this->sendUser($me,$user,$tweets,$following,$followers,$friendsBool,$isRequested,$meBlockedYou,$youBlockedMe);
         }
     }
 
@@ -103,11 +112,47 @@ class UserController extends Controller
         return $data;
     }
 
+    public function blockFriend(Request $request)
+    {
+        $user1 = auth()->user();
+        $user2 = User::Where('id',$request->id)->first();
+
+        $friend1 = Friend::Where('user_id', $user1->id)->where('friend_id',$user2->id)->first();
+        if($friend1 != null) {
+            $friend1->delete();
+        }
+
+        $friend2 = Friend::Where('user_id', $user2->id)->where('friend_id',$user1->id)->first();
+        if($friend2 != null) {
+            $friend2->delete();
+        }
+
+        $block = new Block();
+        $block->user_id = $user1->id;
+        $block->friend_id = $user2->id;
+
+        $user1->block()->save($block);
+
+        return $this->getUser($user2->username);
+    }
+
+    public function unblockFriend(Request $request)
+    {
+        $user1 = auth()->user();
+        $user2 = $user2 = User::Where('id',$request->id)->first();
+
+        $block = Friend::Where('user_id',$user1->id)->Where('friend_id',$user2->id)->first();
+
+        $user1->block()->delete($block);
+
+        return $this->getUser($user2->username);
+    }
+
     public function searchNothing() {
         return [];
     }
 
-    protected function sendUser($me,$user,$tweets,$following,$followers,$friendsBool,$isRequested)
+    protected function sendUser($me,$user,$tweets,$following,$followers,$friendsBool,$isRequested,$meBlockedYou,$youBlockedMe)
     {
         return response()->json([
             'me' => $me,
@@ -116,7 +161,9 @@ class UserController extends Controller
             'following' => $following,
             'followers' => $followers,
             'friendsBool' => $friendsBool,
-            'isRequested' => $isRequested
+            'isRequested' => $isRequested,
+            'meBlockedYou' => $meBlockedYou,
+            'youBlockedMe' => $youBlockedMe
         ]);
     }
 }

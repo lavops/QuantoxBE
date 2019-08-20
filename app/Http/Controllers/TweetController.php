@@ -74,7 +74,7 @@ class TweetController extends Controller
     public function likeTweet(Request $request) {
 
         $user = auth()->user();
-
+        event(new LikeEvent('Lajk sam'));
         $tweet = Tweet::Where('id',$request->id)->first();
 
         $like = new Like();

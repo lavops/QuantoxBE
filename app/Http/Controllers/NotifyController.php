@@ -77,6 +77,6 @@ class NotifyController extends Controller
     }
 
     public function not() {
-        event(new LikeEvent('Uspeh uspeh'));
+
     }
 }
