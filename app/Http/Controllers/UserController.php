@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Block;
+use App\Comment;
 use App\Friend;
+use App\Like;
 use App\Tweet;
 use App\User;
 use Illuminate\Http\Request;
@@ -65,12 +67,15 @@ class UserController extends Controller
             else
                 $friendsBool = false;
 
-            $tweets = Tweet::where('user_id', $user->id)->join('users','tweets.user_id','=','users.id')->select(
+            $tweets = $this->probaTweetUser($user);
+            /*
+             * Tweet::where('user_id', $user->id)->join('users','tweets.user_id','=','users.id')->select(
                 'tweets.*',
                 'users.username',
                 'users.name',
                 'users.imgURL'
             )->orderBy('tweets.updated_at', 'desc')->get();
+             */
             // Liked tweets
             $following = Friend::Where('user_id',$user->id)->join('users','friends.friend_id','=','users.id')->Where('isRequested',false)->get();
             $followers = Friend::Where('friend_id',$user->id)->join('users','friends.user_id','=','users.id')->Where('isRequested',false)->get();
@@ -94,6 +99,44 @@ class UserController extends Controller
 
             return $this->sendUser($me,$user,$tweets,$following,$followers,$friendsBool,$isRequested,$meBlockedYou,$youBlockedMe);
         }
+    }
+
+    public function probaTweetUser($me) {
+
+        $tweets = Tweet::Join('users','tweets.user_id','=','users.id')->
+        Where('tweets.user_id',$me->id)->OrderBy('tweets.created_at','desc')->
+        select(
+            'tweets.*',
+            'users.username',
+            'users.name',
+            'users.imgURL'
+        )->get();
+
+        foreach($tweets as $tweet) {
+
+            $countLikes = Like::Where('tweet_id',$tweet->id)->count();
+            $countComments = Comment::Where('tweet_id',$tweet->id)->count();
+
+            if(Like::Where('tweet_id',$tweet->id)->Where('user_id',$me->id)->first() != null)
+                $isLiked = true;
+            else
+                $isLiked = false;
+
+            $comments = Comment::Join('users','comments.user_id','=','users.id')->Where('tweet_id',$tweet->id)->
+            select(
+                'comments.*',
+                'users.username',
+                'users.name',
+                'users.imgURL'
+            )->get();
+
+            $tweet->comments = $comments;
+            $tweet->countLikes = $countLikes;
+            $tweet->countComments = $countComments;
+            $tweet->isLiked = $isLiked;
+        }
+
+        return $tweets;
     }
 
     public function getUserWithID($id) {

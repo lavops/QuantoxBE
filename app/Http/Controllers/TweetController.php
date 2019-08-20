@@ -23,30 +23,7 @@ class TweetController extends Controller
 
         $user->tweet()->save($tweet);
         if($request->url == 'profile') {
-            $tweets = Tweet::where('user_id', $user->id)->join('users','tweets.user_id','=','users.id')->select(
-                'tweets.*',
-                'users.username',
-                'users.name',
-                'users.imgURL'
-            )->orderBy('tweets.updated_at', 'desc')->get();
-            return $tweets;
-        }
-        else
-            return $this->getTweets();
-    }
-
-    public function deleteTweet(Request $request) {
-        $user = auth()->user();
-        $tweet = Tweet::where('id',$request->id)->first();
-        $tweet->delete();
-
-        if($request->url == 'profile') {
-            $tweets = Tweet::where('user_id', $user->id)->join('users','tweets.user_id','=','users.id')->select(
-                'tweets.*',
-                'users.username',
-                'users.name',
-                'users.imgURL'
-            )->orderBy('tweets.updated_at', 'desc')->get();
+            $tweets = $this->probaTweetProfile($user);
             return $tweets;
         }
         else
@@ -57,16 +34,98 @@ class TweetController extends Controller
     {
         $user = auth()->user();
 
-        $tweets = Tweet::join('users','tweets.user_id','=','users.id')->
-            leftJoin('friends','users.id','=','friends.friend_id')->
-            Where('friends.user_id',$user->id)->
-            Where('friends.isRequested',false)->
-            orWhere('users.id',$user->id)->select(
+        $tweets = $this->probaTweetTimeline($user);
+
+        return $tweets;
+    }
+
+    public function deleteTweet(Request $request) {
+        $user = auth()->user();
+        $tweet = Tweet::where('id',$request->id)->first();
+        $tweet->delete();
+
+        if($request->url == 'profile') {
+            $tweets = $this->probaTweetProfile($user);
+            return $tweets;
+        }
+        else
+            return $this->getTweets();
+    }
+
+    public function probaTweetProfile($me) {
+
+        $tweets = Tweet::Join('users','tweets.user_id','=','users.id')->
+        Where('tweets.user_id',$me->id)->OrderBy('tweets.created_at','desc')->
+        select(
             'tweets.*',
             'users.username',
             'users.name',
             'users.imgURL'
+        )->get();
+
+        foreach($tweets as $tweet) {
+
+            $countLikes = Like::Where('tweet_id',$tweet->id)->count();
+            $countComments = Comment::Where('tweet_id',$tweet->id)->count();
+
+            if(Like::Where('tweet_id',$tweet->id)->Where('user_id',$me->id)->first() != null)
+                $isLiked = true;
+            else
+                $isLiked = false;
+
+            $comments = Comment::Join('users','comments.user_id','=','users.id')->Where('tweet_id',$tweet->id)->
+            select(
+                'comments.*',
+                'users.username',
+                'users.name',
+                'users.imgURL'
+            )->get();
+
+            $tweet->comments = $comments;
+            $tweet->countLikes = $countLikes;
+            $tweet->countComments = $countComments;
+            $tweet->isLiked = $isLiked;
+        }
+
+        return $tweets;
+    }
+
+    public function probaTweetTimeline($me) {
+
+        $tweets = Tweet::join('users','tweets.user_id','=','users.id')->
+            leftJoin('friends','users.id','=','friends.friend_id')->
+            Where('friends.user_id',$me->id)->
+            Where('friends.isRequested',false)->
+            orWhere('users.id',$me->id)->select(
+                'tweets.*',
+                'users.username',
+                'users.name',
+                'users.imgURL'
             )->orderBy('updated_at','desc')->distinct('tweets.id')->get();
+
+        foreach($tweets as $tweet) {
+
+            $countLikes = Like::Where('tweet_id',$tweet->id)->count();
+            $countComments = Comment::Where('tweet_id',$tweet->id)->count();
+
+            if(Like::Where('tweet_id',$tweet->id)->Where('user_id',$me->id)->first() != null)
+                $isLiked = true;
+            else
+                $isLiked = false;
+
+            $comments = Comment::Join('users','comments.user_id','=','users.id')->Where('tweet_id',$tweet->id)->
+            select(
+                'comments.*',
+                'users.username',
+                'users.name',
+                'users.imgURL'
+            )->get();
+
+            $tweet->comments = $comments;
+            $tweet->countLikes = $countLikes;
+            $tweet->countComments = $countComments;
+            $tweet->isLiked = $isLiked;
+        }
 
         return $tweets;
     }
@@ -117,13 +176,5 @@ class TweetController extends Controller
             'isLiked' =>$isLiked
         ]);
     }
-
-
-
-    // Delete function
-
-    // Update function
-
-    // Get Single Tweet
 
 }

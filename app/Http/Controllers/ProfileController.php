@@ -6,17 +6,14 @@ use App\Friend;
 use App\Like;
 use Illuminate\Http\Request;
 use App\Tweet;
+use App\Comment;
 
 class ProfileController extends Controller
 {
     public function getProfile() {
         $user = auth()->user();
-        $tweets = Tweet::where('user_id', $user->id)->join('users','tweets.user_id','=','users.id')->select(
-            'tweets.*',
-            'users.username',
-            'users.name',
-            'users.imgURL'
-        )->orderBy('tweets.updated_at', 'desc')->get();
+
+        $tweets = $this->probaTweetProfile($user);
         $liked = Like::join('tweets','likes.tweet_id','=','tweets.id')->Where('likes.user_id',$user->id)->
         join('users','tweets.user_id','=','users.id')->select(
             'tweets.*',
@@ -27,6 +24,44 @@ class ProfileController extends Controller
         $following = Friend::Where('user_id',$user->id)->join('users','friends.friend_id','=','users.id')->Where('isRequested',false)->get();
         $followers = Friend::Where('friend_id',$user->id)->join('users','friends.user_id','=','users.id')->Where('isRequested',false)->get();
         return $this->sendProfile($user,$tweets,$following,$followers,$liked);
+    }
+
+    public function probaTweetProfile($me) {
+
+        $tweets = Tweet::Join('users','tweets.user_id','=','users.id')->
+        Where('tweets.user_id',$me->id)->OrderBy('tweets.created_at','desc')->
+        select(
+            'tweets.*',
+            'users.username',
+            'users.name',
+            'users.imgURL'
+        )->get();
+
+        foreach($tweets as $tweet) {
+
+            $countLikes = Like::Where('tweet_id',$tweet->id)->count();
+            $countComments = Comment::Where('tweet_id',$tweet->id)->count();
+
+            if(Like::Where('tweet_id',$tweet->id)->Where('user_id',$me->id)->first() != null)
+                $isLiked = true;
+            else
+                $isLiked = false;
+
+            $comments = Comment::Join('users','comments.user_id','=','users.id')->Where('tweet_id',$tweet->id)->
+            select(
+                'comments.*',
+                'users.username',
+                'users.name',
+                'users.imgURL'
+            )->get();
+
+            $tweet->comments = $comments;
+            $tweet->countLikes = $countLikes;
+            $tweet->countComments = $countComments;
+            $tweet->isLiked = $isLiked;
+        }
+
+        return $tweets;
     }
 
     protected function sendProfile($user,$tweets,$following,$followers,$liked)
