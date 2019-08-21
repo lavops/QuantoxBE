@@ -2,7 +2,8 @@
 
 namespace App\Events;
 
-use App\Like;
+use App\Tweet;
+use App\User;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Broadcasting\PrivateChannel;
@@ -15,22 +16,20 @@ class LikeEvent implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public $name;
-    public $username;
-    public $notify;
+    public $likerUsername;
+    public $likerName;
+    public $ownerName;
+    public $ownerUsername;
 
-    public function __construct($id,$name,$username)
+    public function __construct($like)
     {
-        $this->name = $name;
-        $this->username = $username;
-        $notify = Like::join('tweets','likes.tweet_id','=','tweets.id')->
-        join('users','likes.user_id','=','users.id')->
-        where('likes.notify',true)->where('tweets.user_id',$id)->
-        where('likes.user_id','!=',$id)->select(
-            'likes.*',
-            'users.username',
-            'users.name'
-        )->get();
+        $liker = User::Where('id',$like->user_id)->first();
+        $this->likerUsername = $liker->username;
+        $this->likerName = $liker->name;
+
+        $likedTweet = Tweet::Join('users','tweets.user_id','=','users.id')->Where('tweets.id',$like->tweet_id)->first();
+        $this->ownerName = $likedTweet->name;
+        $this->ownerUsername = $likedTweet->username;
     }
 
     public function broadcastOn()

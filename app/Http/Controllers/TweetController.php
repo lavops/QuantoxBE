@@ -146,6 +146,8 @@ class TweetController extends Controller
 
         $tweet->like()->save($like);
 
+        event(new LikeEvent($like));
+
         return $this->getLikes($tweet->id);
     }
 

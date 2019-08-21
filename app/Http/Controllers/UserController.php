@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Block;
 use App\Comment;
+use App\Events\FollowEvent;
 use App\Friend;
 use App\Like;
 use App\Tweet;
@@ -29,6 +30,8 @@ class UserController extends Controller
         $friend1->notify = true;
 
         $user1->friend()->save($friend1);
+
+        event(new FollowEvent($friend1));
 
         return $this->getUser($user2->username);
     }
