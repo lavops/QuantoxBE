@@ -60,7 +60,7 @@ class UserController extends Controller
         if(Block::Where('friend_id',$me->id)->Where('user_id',$user->id)->first())
             $youBlockedMe = true;
 
-        if($user->isPrivate == false || $friend != null)
+        if(($user->isPrivate == false || $friend != null) && !$youBlockedMe && !$meBlockedYou)
         {
             if($friend != null)
                 $friendsBool = true;

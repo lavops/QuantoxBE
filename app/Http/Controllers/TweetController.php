@@ -10,6 +10,7 @@ use App\Like;
 use Illuminate\Http\Request;
 use App\User;
 use App\Tweet;
+use Facades\App\Repository\Tweets;
 
 class TweetController extends Controller
 {
@@ -33,8 +34,10 @@ class TweetController extends Controller
     public function getTweets()
     {
         $user = auth()->user();
-
-        $tweets = $this->probaTweetTimeline($user);
+        // kesiran timeline
+        $tweets = Tweets::all($user);
+        // obican timeline
+        // $tweets = $this->probaTweetTimeline($user);
 
         return $tweets;
     }
@@ -133,7 +136,7 @@ class TweetController extends Controller
     public function likeTweet(Request $request) {
 
         $user = auth()->user();
-        event(new LikeEvent('Lajk sam'));
+
         $tweet = Tweet::Where('id',$request->id)->first();
 
         $like = new Like();

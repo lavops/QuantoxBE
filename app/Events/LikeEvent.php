@@ -2,6 +2,7 @@
 
 namespace App\Events;
 
+use App\Like;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Broadcasting\PrivateChannel;
@@ -14,11 +15,22 @@ class LikeEvent implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public $message;
+    public $name;
+    public $username;
+    public $notify;
 
-    public function __construct($message)
+    public function __construct($id,$name,$username)
     {
-        $this->message = $message;
+        $this->name = $name;
+        $this->username = $username;
+        $notify = Like::join('tweets','likes.tweet_id','=','tweets.id')->
+        join('users','likes.user_id','=','users.id')->
+        where('likes.notify',true)->where('tweets.user_id',$id)->
+        where('likes.user_id','!=',$id)->select(
+            'likes.*',
+            'users.username',
+            'users.name'
+        )->get();
     }
 
     public function broadcastOn()
@@ -28,6 +40,6 @@ class LikeEvent implements ShouldBroadcast
 
     public function broadcastAs()
     {
-        return 'my-event';
+        return 'liked';
     }
 }

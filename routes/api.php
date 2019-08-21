@@ -34,6 +34,8 @@ Route::group([
     Route::get('userID/{id}','UserController@getUserWithID');
     Route::get('search/{text}','UserController@search');
     Route::get('search/{text?}','UserController@searchNothing');
+    Route::post('blockFriend','UserController@blockFriend');
+    Route::post('unblockFriend','UserController@unblockFriend');
 
     Route::get('getFollowNotify','NotifyController@getFollow');
     Route::get('getLikeNotify','NotifyController@getLike');
@@ -41,7 +43,5 @@ Route::group([
     Route::post('dismissFollow','NotifyController@dismissFollow');
     Route::post('acceptFollow','NotifyController@acceptFollow');
     Route::post('declineFollow','NotifyController@declineFollow');
-
-    Route::get('not','NotifyController@not');
 
 });

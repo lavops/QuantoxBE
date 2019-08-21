@@ -1,25 +1,47 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Repository;
 
 use App\Comment;
 use App\Like;
 use App\Tweet;
-use Illuminate\Http\Request;
+use Carbon\Carbon;
 
-class ProbaController extends Controller
-{
-    public function probaTweetProfile() {
-        $me = auth()->user();
+class Tweets{
 
-        $tweets = Tweet::Join('users','tweets.user_id','=','users.id')->
-        Where('tweets.user_id',$me->id)->OrderBy('tweets.created_at','desc')->
-        select(
+    const CACHE_KEY = 'TWEETS';
+
+    public function all($user) {
+        $key = "timeline.{$user->username}";
+        $cacheKey = $this->getCacheKey($key);
+
+        return cache()->remember($cacheKey,Carbon::now()->addSeconds(30),function() use($user){
+            return $this->probaTweetTimeline($user);
+        });
+    }
+
+    public function get() {
+
+    }
+
+    public function getCacheKey($key) {
+        $key = strtoupper($key);
+
+        return self::CACHE_KEY .".$key";
+    }
+
+    public function probaTweetTimeline($me) {
+
+        $tweets = Tweet::join('users','tweets.user_id','=','users.id')->
+        leftJoin('friends','users.id','=','friends.friend_id')->
+        Where('friends.user_id',$me->id)->
+        Where('friends.isRequested',false)->
+        orWhere('users.id',$me->id)->select(
             'tweets.*',
             'users.username',
             'users.name',
             'users.imgURL'
-        )->get();
+        )->orderBy('updated_at','desc')->distinct('tweets.id')->get();
 
         foreach($tweets as $tweet) {
 
@@ -48,7 +70,5 @@ class ProbaController extends Controller
         return $tweets;
     }
 
-    public function probaTweetUser() {
-        $me = auth()->user();
-    }
+
 }
