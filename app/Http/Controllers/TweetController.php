@@ -156,9 +156,10 @@ class TweetController extends Controller
 
         $tweet = Tweet::Where('id',$request->id)->first();
 
-        $like = Like::Where('tweet_id',$tweet->id)->first();
+        $like = Like::Where('tweet_id',$tweet->id)->Where('user_id',$user->id)->first();
 
-        $tweet->like()->delete($like);
+        $like->delete();
+
 
         return $this->getLikes($tweet->id);
     }
